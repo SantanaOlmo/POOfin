@@ -1,12 +1,11 @@
 package EjercicioEvaluable2;
 
-import java.util.InputMismatchException;
-import java.util.Scanner;
+import java.util.*;
 
 public class Empleado {
-   Scanner leer;
-   Scanner leerSwitch;
-   public String NIF;
+   Scanner leer=new Scanner(System.in);
+   Scanner leerSwitch=new Scanner(System.in);
+   public int NIF;
    public double sueldo_base;
    public double sueldo_bruto;
    public double sueldo_neto;
@@ -18,57 +17,21 @@ public class Empleado {
    public String nombre;
 
    public Empleado() {
-      this.leer = new Scanner(System.in);
-      this.leerSwitch = new Scanner(System.in);
       this.setNombre();
       this.setNIF();
-      this.setSueldo_base();
+      this.setSueldo_base();//el sueldo base lo introduce el usuario
       this.setPrecio_horasextra();
       this.setHorasExtraRealizadas();
-      this.setSueldoBruto();
-      this.setCasado();
-      this.setHijos();
-      this.setTipo_IRPF();
-      this.DevolucionRetencionIRPF();
-      this.setSueldo_neto();
+      this.setSueldoBruto();//sueldo bruto=sueldo neto + horas extra
+      this.setCasado();//para luego devolver
+      this.setHijos();//para luego devolver
+      this.setTipo_IRPF();//cobro el irpf aquí
+      this.DevolucionRetencionIRPF();//devuelvo si es necesario aquí
+      this.setSueldo_neto();//el sueldo final
    }
-
-   public void queHacer() {
-      boolean on = true;
-      byte numSwitch = 0;
-
-      while(on) {
-         try {
-            System.out.println("Inserte el numero correspondiente para ejecutar las acciones. ");
-            System.out.println("1. Insertar datos de otro empleado.");
-            System.out.println("2. Finalizar el programa.");
-            switch(numSwitch) {
-            case 1:
-               System.out.println("Ha elegido: Insertar datos de otro usuario.");
-               this.setNombre();
-               this.setNIF();
-               this.setSueldo_base();
-               this.setPrecio_horasextra();
-               this.setHorasExtraRealizadas();
-               this.setCasado();
-               this.setHijos();
-               this.setSueldoBruto();
-               this.setTipo_IRPF();
-               break;
-            case 2:
-               System.out.println("Ha elegido: Finalizar el programa.");
-               System.out.println("Hasta la próxima\ud83d\udc4b\ud83d\udc4b\ud83d\udc4b ");
-               break;
-            default:
-               System.out.println("Inserte una de las opciones ofrecidas:");
-               System.out.println("");
-            }
-         } catch (InputMismatchException var4) {
-            System.out.println("Inserte una de las opciones");
-            this.leerSwitch.next();
-         }
-      }
-
+   @Override
+   public String toString() {
+      return "Nombre: " + getNombre() + ", NIF: " + getNIF() + ", Sueldo neto: " + getSueldo_neto()+"€";
    }
 
    public void setNombre() {
@@ -79,12 +42,13 @@ public class Empleado {
       while(on) {
          try {
             System.out.println("Inserte el nombre del empleado:");
-            nombrecito = this.leer.next();
-            if (nombrecito == null) {
+            nombrecito = leer.nextLine();
+            if (nombrecito == "") {
                this.nombre = "sinNombre_" + this.getNIF();
             } else {
                this.nombre = nombrecito;
             }
+            on=false;
          } catch (InputMismatchException var4) {
             System.out.println("Error, inserte un nombre correcto");
             this.leer.next();
@@ -96,6 +60,7 @@ public class Empleado {
    public String getNombre() {
       return this.nombre;
    }
+
 
    public void setHorasExtraRealizadas() {
       boolean on = true;
@@ -124,15 +89,52 @@ public class Empleado {
       return this.horas_extra_realizadas;
    }
 
-   public void setNIF() {
-      System.out.println("¿Cuál es el NIF de su empleado?");
-      String nif = this.leer.nextLine();
-      this.NIF = nif;
+   public String getNIF() {
+      return  ""+NIF+getLetraDNI();
    }
 
-   public String getNIF() {
-      return this.NIF;
+   public void setNIF() {
+      int nifnif=0;
+
+      boolean on=true;
+      while (on){
+         try{
+
+            System.out.println("Introduzca su dni, sin letra");
+            System.out.println("Recuerde, son 8 dígitos numéricos");
+            nifnif=leer.nextInt();
+
+            System.out.println("Ha introducido: "+ nifnif);
+            if(Integer.toString(nifnif).length()==8 ){
+               this.NIF=nifnif;//asigno el dni (numeros) depurado.
+               System.out.println("☑️ DNI registrado como: "+ getNIF());
+               // System.out.println("tras this.dni=dnidni");
+               on=false;//salgo del set
+               //System.out.println("tras on=false");
+               break;
+
+            }else{
+               System.out.println("Error, introduzca 8 dígitos");
+            }
+
+
+         }catch (InputMismatchException e){
+            System.out.println("Error, no introduzca letras");
+            leer.next();
+         }
+      }
    }
+
+
+   public char getLetraDNI(){
+      char[] letrasDNI = {'T', 'R', 'W', 'A', 'G', 'M', 'Y', 'F', 'P', 'D',
+              'X', 'B', 'N', 'J', 'Z', 'S', 'Q', 'V', 'H', 'L',
+              'C', 'K', 'E'};
+
+      int resto=NIF%23;
+      return letrasDNI[resto];
+   }
+
 
    public void setSueldo_base() {
       boolean on = true;
@@ -141,10 +143,13 @@ public class Empleado {
          try {
             System.out.println("¿Cual es el sueldo base del empleado?");
             double sueldo_base = this.leer.nextDouble();
-            if (sueldo_base < 1134.0D) {
-               this.sueldo_base = 1134.0D;
+            if (sueldo_base < 1134) {
+               System.out.println("Ha introducido "+sueldo_base + "€");
+               System.out.println("se le asignará el sueldo mínimo profesional");
+               this.sueldo_base = 1134;
                on = false;
             } else {
+               System.out.println("Ha introducido "+ sueldo_base+ "€");
                this.sueldo_base = sueldo_base;
                on = false;
             }
@@ -157,6 +162,7 @@ public class Empleado {
    }
 
    public double getSueldo_base() {
+
       return this.sueldo_base;
    }
 
@@ -168,11 +174,14 @@ public class Empleado {
          try {
             System.out.println("¿Cual es el precio de las horas extra de su empleado?");
             precio = this.leer.nextDouble();
-            if (this.precio_horasextra < 12.419999999999998D) {
-               this.precio_horasextra = 12.419999999999998D;
+            if (this.precio_horasextra < 12.5) {
+               System.out.println("Ha introducido "+ precio+ " €");
+               System.out.println("Se asignará el sueldo mínimo interprofesional, 12.5€/hora");
+               this.precio_horasextra = 12.5;
                on = false;
             } else {
                this.precio_horasextra = precio;
+               System.out.println("Ha introducido "+ precio+ " €");
                on = false;
             }
          } catch (InputMismatchException var5) {
@@ -184,12 +193,14 @@ public class Empleado {
    }
 
    public double getPrecio_horasextra() {
+
       return this.precio_horasextra;
    }
 
    public void setHoras_extra_realizadas(double horas_extra_realizadas) {
-      if (horas_extra_realizadas < 0.0D) {
-         this.horas_extra_realizadas = 0.0D;
+      if (horas_extra_realizadas < 0) {
+
+         this.horas_extra_realizadas = 0;
       } else {
          this.horas_extra_realizadas = horas_extra_realizadas;
       }
@@ -201,24 +212,25 @@ public class Empleado {
    }
 
    public void setTipo_IRPF() {
-      if (this.sueldo_base < 1037.0D) {
-         this.tipo_IRPF = 0.19D * this.sueldo_base;
-      } else if (this.sueldo_base < 1683.0D) {
-         this.tipo_IRPF = 0.24D * this.sueldo_base;
-      } else if (this.sueldo_base < 2933.0D) {
-         this.tipo_IRPF = 0.3D * this.sueldo_base;
-      } else if (this.sueldo_base < 4999.0D) {
-         this.tipo_IRPF = 0.37D * this.sueldo_base;
-      } else if (this.sueldo_base < 24999.0D) {
-         this.tipo_IRPF = 0.45D * this.sueldo_base;
-      } else if (this.sueldo_base > 24999.0D) {
-         this.tipo_IRPF = 0.47D * this.sueldo_base;
+      if (this.sueldo_base < 1037.) {
+         this.tipo_IRPF = 0.19 * this.sueldo_base;
+      } else if (this.sueldo_base < 1683) {
+         this.tipo_IRPF = 0.24 * this.sueldo_base;
+      } else if (this.sueldo_base < 2933) {
+         this.tipo_IRPF = 0.3 * this.sueldo_base;
+      } else if (this.sueldo_base < 4999) {
+         this.tipo_IRPF = 0.37 * this.sueldo_base;
+      } else if (this.sueldo_base < 24999) {
+         this.tipo_IRPF = 0.45 * this.sueldo_base;
+      } else if (this.sueldo_base > 24999) {
+         this.tipo_IRPF = 0.47 * this.sueldo_base;
       }
 
       this.sueldo_neto = this.sueldo_bruto - this.tipo_IRPF;
    }
 
    public double getIRPF() {
+
       this.setTipo_IRPF();
       return this.tipo_IRPF;
    }
@@ -230,7 +242,7 @@ public class Empleado {
       while(on) {
          try {
             System.out.println("¿Está casado?");
-            respuesta = this.leer.next();
+            respuesta = leer.nextLine();
             respuesta = respuesta.toLowerCase();
             System.out.println(respuesta);
             if (respuesta.equals("si")) {
@@ -317,30 +329,35 @@ public class Empleado {
       }
 
       if (this.casado && this.hijos > 0) {
-         System.out.println("Se ha reingresado la siguiente cuantía: " + devolucion);
-         System.out.println("Por lo tanto el sueldo neto final es: " + this.sueldo_neto);
+         System.out.println("Se ha reingresado la siguiente cuantía: " + devolucion + "€ de IRPF por hijos y/o matrimonio");
+         System.out.println("Por lo tanto el sueldo neto final es: " + this.sueldo_neto+ "€");
       } else {
-         System.out.println("No se le devolverá nada, las retenciones se mantienen en: " + this.tipo_IRPF);
+         System.out.println("No se le devolverá nada por hijos o matrimonio, las retenciones se mantienen en: " + this.tipo_IRPF + " €");
       }
 
    }
 
    public void setSueldo_neto() {
+
       this.sueldo_neto = this.sueldo_neto;
    }
 
-   public double getSueldo_neto() {
+   public double getSueldo_neto()
+   {
       return this.sueldo_neto;
    }
 
    public void getInformacionBasica() {
+      getNIF();
    }
 
    public void getInformacionCompleta() {
-      System.out.println("Sueldo base: " + this.sueldo_base);
-      System.out.println("Complemento horas extra: " + this.precio_horasextra);
-      System.out.println("Sueldo bruto: " + this.sueldo_bruto);
-      System.out.println("Retención IRPF: " + this.tipo_IRPF);
-      System.out.println("Sueldo neto: " + this.sueldo_neto);
+      System.out.println("Sueldo base: " + getSueldo_base()+"€");
+      System.out.println("Complemento horas extra: " + getPrecio_horasextra()+"€");
+      System.out.println("Sueldo bruto: " + getSueldoBruto()+"€");
+      System.out.println("Retención IRPF: " + getIRPF()+ "%");
+      System.out.println("Sueldo neto: " + getSueldo_neto()+"€");
+      System.out.println("Horas extra:"+ getHorasExtraRealizadas() +" horas");
+      System.out.println("");
    }
 }
